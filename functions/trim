@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Remove any whitespace from the start and end of a string
+trim(){
+    # Version
+    local trim_version="0.1.0"
+
+    # Get the string
+    local var=$1
+
+    # Remove leading whitespace characters
+    var="${var#"${var%%[![:space:]]*}"}"
+
+    # Remove trailing whitespace characters
+    var="${var%"${var##*[![:space:]]}"}"
+
+    # Return result
+    echo -n "${var}"
+}

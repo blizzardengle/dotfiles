@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Suspend the current session
+nap(){
+    notice "Suspending session."
+    sleep 2
+    systemctl suspend
+    eval exit
+    return
+}

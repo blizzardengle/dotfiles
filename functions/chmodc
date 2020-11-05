@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# Calculate the chmod from a permission string
+chmodc(){
+    # Version
+    local chmodc_version="1.0.1"
+
+    # Assign arguments
+    local permission_string=$1
+
+    # Remove spaces
+    permission_string=$(trim ${permission_string})
+
+    # If we have a proper permission string do the math
+    if [ "${#permission_string}" -eq "9" ];
+    then
+        local permission=0;
+
+        # OWNER
+        if [ "${permission_string:0:1}" = "r" ];
+        then
+            permission=$((permission+400))
+        fi
+        if [ "${permission_string:1:1}" = "w" ];
+        then
+            permission=$((permission+200))
+        fi
+        if [ "${permission_string:2:1}" = "x" ];
+        then
+            permission=$((permission+100))
+        fi
+
+        # GROUP
+        if [ "${permission_string:3:1}" = "r" ];
+        then
+            permission=$((permission+40))
+        fi
+        if [ "${permission_string:4:1}" = "w" ];
+        then
+            permission=$((permission+20))
+        fi
+        if [ "${permission_string:5:1}" = "x" ];
+        then
+            permission=$((permission+10))
+        fi
+
+        # PUBLIC
+        if [ "${permission_string:6:1}" = "r" ];
+        then
+            permission=$((permission+4))
+        fi
+        if [ "${permission_string:7:1}" = "w" ];
+        then
+            permission=$((permission+2))
+        fi
+        if [ "${permission_string:8:1}" = "x" ];
+        then
+            permission=$((permission+1))
+        fi
+
+        notice ${permission}
+    else
+        error "ERROR: Permission string must be 9 characters in length."
+    fi
+}

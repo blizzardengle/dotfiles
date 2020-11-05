@@ -1,0 +1,167 @@
+#!/bin/bash
+
+# Run common docker-compose commands from any sub-directory of a docker project
+dockcmd(){
+    # Versions
+    local dockcmd_version="1.5.2"
+    local docker_version=$(docker --version | egrep -o "([0-9]{1,}\.)+[0-9]{1,}")
+    local dcompose_version=$(docker-compose --version | egrep -o "([0-9]{1,}\.)+[0-9]{1,}")
+
+    # Assign arguments
+    local cmd=$1
+    local arg=$2
+
+    # Catch if arg holds a help option
+    case "${arg}" in
+        h) ;&
+        -h) ;&
+        help) ;&
+        --help)
+            cmd="help"
+            ;;
+    esac
+
+    # Was a valid command provided?
+    case "${cmd}" in
+        build)
+            # default is to run normal build
+            if (( ${#arg} > 0 ));
+            then
+                case "$arg" in
+                    n)  ;&
+                    nc) ;&
+                    no) ;&
+                    -n)  ;&
+                    -nc) ;&
+                    -no) ;&
+                    nocache) ;&
+                    --nocache)
+                        # Build without cached files and always pull new source files
+                        arg="--no-cache --pull"
+                        ;;
+                    *)
+                        error "ERROR: Command [build] supports [n], [nc], [no], or [nocache] arguments only."
+                        return
+                esac
+            else
+                # Run normal build
+                arg=""
+            fi
+            ;;
+        down)
+            ;;
+        restart)
+            ;;
+        stop)
+            ;;
+        up)
+            # Default is to run detached should we not?
+            if (( ${#arg} > 0 ));
+            then
+                case "$arg" in
+                    a)
+                        ;&
+                    attach)
+                        ;&
+                    attached)
+                        arg=''
+                        ;;
+                    *)
+                        error "ERROR: Command [up] supports [a], [attach], or [attached] arguments only."
+                        return
+                esac
+            else
+                # Run docker-compose detached from the terminal / console
+                arg="-d"
+            fi
+            ;;
+        h)  ;&
+        -h) ;&
+        help) ;&
+        --help)
+            echo 'Usage:  dockcmd COMMAND [OPTIONS]'
+            echo ''
+            echo 'Run common docker-compose commands from any sub-directory of a docker project'
+            echo ''
+            echo 'Commands:'
+            echo '  build       Build docker project from docker-compose.yml'
+            echo '  down        Stop and remove all up docker networks and containers in this project'
+            echo '  help        This help message'
+            echo '  [aliases]   h, -h, --help'
+            echo '  restart     Restart all networks and volumes in this project'
+            echo '  stop        Stop running containers without removing them'
+            echo '  up          Builds, (re)creates, starts, and attaches to containers for a service'
+            echo '  version     Display all important version numbers'
+            echo '  [aliases]   v, -v, --version'
+            echo ''
+            echo 'Options:'
+            echo '  nocache     Used with [build] to force pull of source files; ignore local cached files'
+            echo '  [aliases]   n, nc, no, -n, -nc, -no, --nocache'
+            return
+            ;;
+        v)  ;&
+        -v) ;&
+        version) ;&
+        --version)
+            notice "dockcmd        ${dockcmd_version}"
+            notice "Docker         ${docker_version}"
+            notice "Docker Compose ${dcompose_version}"
+            return
+            ;;
+        *)
+            error "ERROR: Bad command provided. Try the [--help] option."
+            return
+    esac
+
+    # make sure your version of docker-compose supports this function or stop now; >= 1.25.0
+    local flag=1
+    IFS='.' # period (.) is set as delimiter
+    read -ra ary <<< "$dcompose_version"
+    for i in "${!ary[@]}";
+    do
+        if [[ "$i" -eq 0 ]] && [[ ${ary[$i]} < 1 ]];
+        then
+            flag=0
+        fi
+        if [[ $i -eq 1 ]] && [[ ${ary[$i]} < 25 ]];
+        then
+            flag=0
+        fi
+    done
+    IFS=' ' # reset to default value after usage
+    if (( $flag < 1 ));
+    then
+        error "ERROR: You must be using docker-compose version 1.25.0 or greater for this function to work."
+        return
+    fi
+
+    # Search the current path for the nearest docker-compose.yml file; stop searching at the root filesystem.
+	local file="docker-compose.yml"
+	local abspath=$(pwd -P)
+	local limit=$(echo ${abspath} | tr -cd "/" | wc -c)
+	local end=${abspath##*/}
+	
+	# Start at 0 to search the current directory first
+	for (( x = 0; x < limit; x++));
+	do	
+		if test -f "$abspath/$file";
+		then
+		    break
+		fi
+		end=${abspath##*/}
+		end=$(( ${#abspath} - ${#end} ))
+		end=$(( $end - 1 ))
+		abspath=${abspath:0:${end}}
+	done
+
+    # Did we find the config file?
+    if test -f "$abspath/$file";
+    then
+    	# Yes.
+        eval "docker-compose --project-directory \"${abspath}\" ${cmd} ${arg}"
+        return
+    else
+    	# No.
+        error "ERROR: No docker-compose.yml file was found within this path: $abspath"
+    fi
+}

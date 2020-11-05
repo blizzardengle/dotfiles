@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# PHPCS
+export PATH="$PATH:$HOME/.config/composer/vendor/bin"
