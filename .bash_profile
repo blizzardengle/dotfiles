@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # Add the dot file dir path to a global var
-export DOTFILES=$(grep -v ^\# .dotfiles | grep  .)
+export DOTFILES=$(cd $HOME && grep -v ^\# .dotfiles | grep  .)
