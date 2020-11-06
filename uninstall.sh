@@ -11,4 +11,7 @@ for file in $(find . -maxdepth 1 -name ".*" -type f  -printf "%f\n" ); do
     fi
 done
 
+# Remove the .dotfiles config file
+rm $PWD/.dotfiles 2> /dev/null
+
 echo "Uninstalled"
