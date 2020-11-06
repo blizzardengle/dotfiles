@@ -39,7 +39,7 @@ In the `dotfiles` directory run the installer script:
 ```
 ./install.sh
 ```
-## Unnstall
+## Uninstall
 In the `dotfiles` directory run the uninstaller script:
 
 ```
