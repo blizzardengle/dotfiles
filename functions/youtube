@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Run youtube-dl from the users current location
+youtube(){
+    # Version
+    local youtube_version="0.1.0"
+
+    # Start a sub-shell for youtube-dl to run in
+    (   
+        $DOTFILES/functions/./youtube-dl $@
+    )
+}

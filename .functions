@@ -42,3 +42,10 @@ if [ -f $DOTFILES/functions/nap ]; then
 else
     echo $(error "ERROR: Could not load your personal function [nap] it does not exist.")
 fi
+
+# include [youtube] if it exists
+if [ -f $DOTFILES/functions/youtube ]; then
+    . $DOTFILES/functions/youtube
+else
+    echo $(error "ERROR: Could not load your personal function [youtube] it does not exist.")
+fi
