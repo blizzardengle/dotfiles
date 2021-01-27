@@ -1,3 +1,4 @@
 .dotfiles
+functions/record
 functions/rsync
 functions/youtube-dl
