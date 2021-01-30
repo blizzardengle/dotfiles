@@ -3,7 +3,7 @@
 # Run common docker-compose commands from any sub-directory of a docker project
 dockcmd(){
     # Versions
-    local dockcmd_version="1.5.2"
+    local dockcmd_version="1.5.4"
     local docker_version=$(docker --version | egrep -o "([0-9]{1,}\.)+[0-9]{1,}")
     local dcompose_version=$(docker-compose --version | egrep -o "([0-9]{1,}\.)+[0-9]{1,}")
 
@@ -28,10 +28,10 @@ dockcmd(){
             if (( ${#arg} > 0 ));
             then
                 case "$arg" in
-                    n)  ;&
+                    n) ;&
                     nc) ;&
                     no) ;&
-                    -n)  ;&
+                    -n) ;&
                     -nc) ;&
                     -no) ;&
                     nocache) ;&
@@ -49,6 +49,41 @@ dockcmd(){
             fi
             ;;
         down)
+            ;;
+        ps)
+            # default is to run with no options
+            if (( ${#arg} > 0 ));
+            then
+                case "$arg" in
+                    a) ;&
+                    -a) ;&
+                    all) ;&
+                    --all)
+                        arg="--all"
+                        ;;
+                    q) ;&
+                    -q) ;&
+                    quiet) ;&
+                    --quiet)
+                        arg="--quiet"
+                        ;;
+                    s) ;&
+                    -s) ;&
+                    service) ;&
+                    --service) ;&
+                    services) ;&
+                    --services)
+                        # Build without cached files and always pull new source files
+                        arg="--services"
+                        ;;
+                    *)
+                        error "ERROR: Command [ps] supports [all], [quiet], or [services] arguments only."
+                        return
+                esac
+            else
+                # Run default ps command
+                arg=""
+            fi
             ;;
         restart)
             ;;
@@ -79,7 +114,9 @@ dockcmd(){
         -h) ;&
         help) ;&
         --help)
-            echo 'Usage:  dockcmd COMMAND [OPTIONS]'
+            echo 'Usage:'
+            echo '  dockcmd [COMMAND] [OPTIONS]'
+            echo '  dockcmd h|-h|help|--help'
             echo ''
             echo 'Run common docker-compose commands from any sub-directory of a docker project'
             echo ''
@@ -87,7 +124,8 @@ dockcmd(){
             echo '  build       Build docker project from docker-compose.yml'
             echo '  down        Stop and remove all up docker networks and containers in this project'
             echo '  help        This help message'
-            echo '  [aliases]   h, -h, --help'
+            echo '  [aliases]   h, -h, help, --help'
+            echo '  ps          List containers'
             echo '  restart     Restart all networks and volumes in this project'
             echo '  stop        Stop running containers without removing them'
             echo '  up          Builds, (re)creates, starts, and attaches to containers for a service'
@@ -95,8 +133,16 @@ dockcmd(){
             echo '  [aliases]   v, -v, --version'
             echo ''
             echo 'Options:'
-            echo '  nocache     Used with [build] to force pull of source files; ignore local cached files'
-            echo '  [aliases]   n, nc, no, -n, -nc, -no, --nocache'
+            echo '  [build]'
+            echo '    nocache     Used with [build] to force pull of source files; ignore local cached files'
+            echo '    [aliases]   n, nc, no, -n, -nc, -no, --nocache'
+            echo '  [ps]'
+            echo '    a           Show all stopped containers (including those created by the run command)'
+            echo '    [aliases]   a, -a, all, --all'
+            echo '    q           Only display IDs'
+            echo '    [aliases]   q, -q, quiet, --quiet'
+            echo '    services    Display services'
+            echo '    [aliases]   s, -s, service, --service, services, --services'
             return
             ;;
         v)  ;&
@@ -158,6 +204,7 @@ dockcmd(){
     if test -f "$abspath/$file";
     then
     	# Yes.
+        echo "docker-compose --project-directory \"${abspath}\" ${cmd} ${arg}"
         eval "docker-compose --project-directory \"${abspath}\" ${cmd} ${arg}"
         return
     else
