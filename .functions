@@ -15,37 +15,15 @@ success(){
     echo -e "\033[1;32m${1}\033[0m"
 }
 
-# include [trim] if it exists
-if [ -f $DOTFILES/functions/trim ]; then
-    . $DOTFILES/functions/trim
-else
-    echo $(error "ERROR: Could not load your personal function [trim] it does not exist.")
-fi
+# Array of functions to load
+declare -a arr=("btfix" "chmodc" "dockcmd" "nap" "trim" "youtube")
 
-# include [dockcmd] if it exists
-if [ -f $DOTFILES/functions/dockcmd ]; then
-    . $DOTFILES/functions/dockcmd
-else
-    echo $(error "ERROR: Could not load your personal function [dockcmd] it does not exist.")
-fi
-
-# include [chmodc] if it exists
-if [ -f $DOTFILES/functions/chmodc ]; then
-    . $DOTFILES/functions/chmodc
-else
-    echo $(error "ERROR: Could not load your personal function [chmodc] it does not exist.")
-fi
-
-# include [nap] if it exists
-if [ -f $DOTFILES/functions/nap ]; then
-    . $DOTFILES/functions/nap
-else
-    echo $(error "ERROR: Could not load your personal function [nap] it does not exist.")
-fi
-
-# include [youtube] if it exists
-if [ -f $DOTFILES/functions/youtube ]; then
-    . $DOTFILES/functions/youtube
-else
-    echo $(error "ERROR: Could not load your personal function [youtube] it does not exist.")
-fi
+# Loop through list of functions and attempt to load them
+for cmd in "${arr[@]}"
+do
+    if [ -f $DOTFILES/functions/$cmd ]; then
+        . $DOTFILES/functions/$cmd
+    else
+        echo $(error "ERROR: Could not load your personal function [$cmd] it does not exist.")
+    fi
+done

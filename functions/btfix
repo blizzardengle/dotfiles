@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Restart the bluetooth service
+btfix(){
+    eval sudo service bluetooth restart
+}
