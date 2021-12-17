@@ -1,28 +1,13 @@
 #!/bin/bash
 
-# Build and show errors
-error(){
-    echo -e "\033[0;31m${1}\033[0m"
-}
-
-# Build and show notices
-notice(){
-    echo -e "\033[1;33m${1}\033[0m"
-}
-
-# Build and show successes
-success(){
-    echo -e "\033[1;32m${1}\033[0m"
-}
-
 # Array of functions to load
-declare -a arr=("btfix" "chmodc" "dockcmd" "nap" "trim" "youtube")
+declare -a arr=("alerts" "btfix" "chmodc" "dockcmd" "nap" "trim" "youtube")
 
 # Loop through list of functions and attempt to load them
 for cmd in "${arr[@]}"
 do
-    if [ -f $DOTFILES/functions/$cmd ]; then
-        . $DOTFILES/functions/$cmd
+    if [ -f "$DOTFILES/functions/$cmd" ]; then
+        . "$DOTFILES/functions/$cmd"
     else
         echo $(error "ERROR: Could not load your personal function [$cmd] it does not exist.")
     fi

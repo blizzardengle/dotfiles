@@ -1,17 +1,17 @@
 #!/bin/bash
 
-# Loop through all the dotfiles, if the file is a symlink then remove it
-# Then if the backup file exists, restore it to it's original location
-for file in $(find . -maxdepth 1 -name ".*" -type f  -printf "%f\n" ); do
-    if [ -h ~/$file ]; then
-        rm -f ~/$file
-    fi
-    if [ -e ~/${file}.dtbak ]; then
-        mv -f ~/$file{.dtbak,}
-    fi
-done
+to="$HOME/.bashrc"
+str="# Link to a tracked version of .bashrc"
+line=$(grep -n "$str" ~/.bashrc)
 
-# Remove the .dotfiles config file
-rm $PWD/.dotfiles 2> /dev/null
-
-echo "Uninstalled"
+if [[ ${#line} -gt 0 ]]; then
+    start="${line//[!0-9]/}"
+    end=$((start+3))
+    cmd="sed -e '$start,${end}d' \"$to\""
+    alt=$(eval $cmd)
+    echo "$alt" > "$to"
+    echo "Uninstalled."
+else
+    echo 'Already uninstalled or you altered the following comment in ~/.bashrc:'
+    echo "$str"
+fi

@@ -1,30 +1,28 @@
 #!/bin/bash
 
-# Do not run if the .dotfiles config file is present; already installed
-if [ -f $PWD/.dotfiles ]; then
-    
-    echo "Already installed, uninstall first."
-    
+from="$PWD/.bashrc"
+to="$HOME/.bashrc"
+str="# Link to a tracked version of .bashrc"
+
+# Does the user have this dotfile already?
+if [ ! -f "$to" ]; then
+	# No, make it first
+	touch $to
+	echo -e "#!/bin/bash\n" >> "$to"
+	echo "$str" >> "$to"
 else
-
-    # Create the .dotfiles config file so we can use the path for our functions 
-    echo -e "# Record the path where we installed the dot files. This is needed for our\n# functions and prevents duplicate installation.\n${PWD}" >> .dotfiles
-
-    # A block list of files that should not be symbolically linked
-    declare -A block=([.functions]=1 [.gitignore]=1)
-
-    # Find all dot files then if the original file exists, create a backup
-    # Once backed up to {file}.dtbak symlink the new dotfile in place
-    for file in $(find . -maxdepth 1 -name ".*" -type f  -printf "%f\n" ); do
-        # Do not create symbolic links for files in the block list
-        if [ ! ${block[$file]} ]; then
-            if [ -e ~/$file ]; then
-                mv -f ~/$file{,.dtbak}
-            fi
-            ln -s $PWD/$file ~/$file
-        fi
-    done
-
-    echo "Installed"
-
+	# Yes, but have we altered it (installed) already?
+	if grep -q "$str" "$to"; then
+		# Yes, do not append the loader since it exists already
+		echo "Already installed."
+		exit
+	fi
+	# No, start appending the loader
+	echo -e "\n# Link to a tracked version of .bashrc" >> $to
 fi
+
+# Rest of the loader code
+echo "if [ -f \"$from\" ]; then" >> "$to"
+echo "	. \"$from\"" >> "$to"
+echo "fi" >> "$to"
+echo "Installed."
