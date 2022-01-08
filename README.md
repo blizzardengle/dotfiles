@@ -1,12 +1,14 @@
 # dotfiles & functions
-These are my personal dot files for Linux, inspired by [Lawrence Systems dotfiles repo](https://github.com/flipsidecreations/dotfiles). I have also added support for adding custom functions to the terminal.
+
+These are my personal dot files for Linux, inspired by [Lawrence Systems dotfiles repo](https://github.com/flipsidecreations/dotfiles). This uses a better install and uninstall process. I have also added support for adding custom functions to the terminal.
 
 ## Installation: Clone Option
-If you want to use my exact setup and update your local machine to match any future changes clone this repository: 
+
+If you want to use my exact setup and update your local machine to match any future changes clone this repository:
 
 ```
 # You can clone anywhere you want, this does not have to be your home dir
-cd ~ 
+cd ~
 git clone https://github.com/blizzardengle/dotfiles.git
 cd dotfiles
 ```
@@ -31,15 +33,19 @@ git merge origin/master
 ```
 
 ## Installation: Copy Option
+
 If you want to use these files as the base for your own setup you should copy them by downloading the zip file of this repository. Once you have placed the `dotfiles` folder where you want it on your computer, run the installer (see below).
 
 ## Install
+
 In the `dotfiles` directory run the installer script:
 
 ```
 ./install.sh
 ```
+
 ## Uninstall
+
 In the `dotfiles` directory run the uninstaller script:
 
 ```

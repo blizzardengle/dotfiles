@@ -1,0 +1,96 @@
+#!/bin/bash
+
+# Run ngrok from any sub-directory of a project that has ngrok configured
+ngrok(){
+    # Versions
+    local ngrok_cli_version="1.0.0"
+    local ngrok_version=$(cd "${DOTFILES}/functions" && ./ngrok --version | egrep -o "([0-9]{1,}\.)+[0-9]{1,}")
+
+    # Assign arguments
+    local arg=$1
+    local cmd=$@
+
+    # Was a valid command provided?
+    case "${arg}" in
+        authtoken)
+            ;;
+        credits)
+            eval "bash -c \"\\\"${DOTFILES}/functions/ngrok\\\" credits\""
+            return
+            ;;
+        http)
+            ;;
+        start) ;&
+        tcp) ;&
+        tls)
+            error "This feature is not yet supported by the ngrok-cli helper. You will have to run ngrok directly."
+            return
+            ;;
+        h)  ;&
+        -h) ;&
+        help) ;&
+        -help) ;&
+        --help)
+            eval "bash -c \"\\\"${DOTFILES}/functions/ngrok\\\" help\""
+            return
+            ;;
+        update)
+            eval "bash -c \"\\\"${DOTFILES}/functions/ngrok\\\" update\""
+            return
+            ;;
+        v)  ;&
+        -v) ;&
+        version) ;&
+        --version)
+            notice "ngrok              ${ngrok_version}"
+            notice "ngrok-cli (helper) ${ngrok_cli_version}"
+            return
+            ;;
+        *)
+            error "ERROR: Bad command provided. Try the [--help] option."
+            return
+    esac
+
+    # Only alter the command if it is missing the authtoken argument
+    if [[ $cmd != *"-config"* ]]; then
+        # Search the current path for the nearest ngrok.yml file; stop searching at the root filesystem.
+        local file="ngrok.yml"
+        local abspath=$(pwd -P)
+        local limit=$(echo ${abspath} | tr -cd "/" | wc -c)
+        local end=${abspath##*/}
+
+        # Start at 0 to search the current directory first
+        for (( x = 0; x < limit; x++));
+        do	
+            if test -f "$abspath/$file";
+            then
+                break
+            fi
+            end=${abspath##*/}
+            end=$(( ${#abspath} - ${#end} ))
+            end=$(( $end - 1 ))
+            abspath=${abspath:0:${end}}
+        done
+
+        # Did we find the config file?
+        if test -f "$abspath/$file";
+        then
+            # Yes.
+            local token=$(eval "cat \"${abspath}/ngrok.yml\"")
+            token=${token#authtoken:}
+            token=$(echo $token | xargs)
+            if [ "$token" != "" ];
+            then
+                cmd="${cmd} -authtoken=${token}"
+            else
+                error "Corrupted ngrok.yml file! Could not locate authentication token: $abspath"
+            fi
+            # cmd="${cmd} -config=\"${abspath}/ngrok.yml\""
+        else
+            # No.
+            notice "Attempting to use the default ngrok.yml config file. No config was found within this path: $abspath"
+        fi
+    fi
+
+    # eval "bash -c \"\\\"${DOTFILES}/functions/ngrok\\\" ${cmd}\""
+}

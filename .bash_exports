@@ -1,4 +1,8 @@
 #!/bin/bash
 
+# Docker
+export PATH="$HOME/bin:$PATH"
+export DOCKER_HOST=unix:///run/user/1000/docker.sock
+
 # PHPCS
 export PATH="$PATH:$HOME/.config/composer/vendor/bin"

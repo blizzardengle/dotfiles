@@ -2,9 +2,9 @@
 
 # Suspend the current session
 nap(){
-    notice "Suspending session."
-    sleep 2
-    systemctl suspend
-    eval exit
-    return
+    local cmd="dbus-send --system --print-reply"
+    cmd="${cmd} --dest=org.freedesktop.login1"
+    cmd="${cmd} /org/freedesktop/login1"
+    cmd="${cmd} org.freedesktop.login1.Manager.Suspend boolean:true"
+    eval "${cmd}" > /dev/null
 }
